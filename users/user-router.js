@@ -1,6 +1,7 @@
 const express = require('express');
 
 const db = require('../data/db-config.js');
+const Users = require('./user-model');
 
 const router = express.Router();
 
@@ -77,25 +78,17 @@ router.delete('/:id', (req, res) => {
   });
 });
 
+// this db has a posts table and each record has a user_id
 router.get('/:id/posts', (req, res) => {
   const { id } = req.params;
-  // select * from posts where user_id = id
-  // db('posts').where({user_id: id})
-  // .then(posts => {
-  //   res.status(200).json(posts);
-  // })
-  // .catch(err => res.send(err))
-  
-  // join users as u on u.id = p.user_id where u.id = 123
-  db('posts as p')
-  .join('users as u', 'u.id', '=', 'p.user_id')
-  .where('u.id', id)
+  Users.findUserPosts(id)
   .then(posts => {
-    res.status(200).json(posts);
+    res.status(200).json(posts)
   })
-  .catch(error => res.send(error));
+  .catch(error => {
+    res.status(500).json(error)
+  })
   })
 
-// this db has a posts table and each record has a user_id
 
 module.exports = router;
